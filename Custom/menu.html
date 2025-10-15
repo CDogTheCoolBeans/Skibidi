@@ -1,0 +1,31 @@
+<html>
+<head>
+<title> Custom Game </title>
+<script src="https://simplycodingcourses.com/files/simply.js"></script>
+<script>
+function start(){
+sjs.open("target",1500,700);
+
+var background = new sjs.Image("Images/outerside.webp");
+background.setSize(1500,700);
+
+var menu_text = new sjs.Text("Mummy Boss Fight", 100, "black");
+menu_text.centerH();
+
+var startBtn = new sjs.Button("Begin", function(){
+window.location = "Custom.html";
+});
+
+startBtn.center();
+
+
+
+} //end start
+</script>
+</head>
+<body onload="start()">
+<h1> Custom Game </h1>
+
+<div id="target" style="margin:auto;background:grey;"></div>
+</body>
+</html>

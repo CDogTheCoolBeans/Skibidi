@@ -1,0 +1,405 @@
+<html>
+<head>
+<title> Custom Game </title>
+<script src="https://simplycodingcourses.com/files/simply.js"></script>
+<script>
+function start(){
+sjs.open("target",1500,700);
+
+var background = new sjs.Image("Images/pyramid.jpg");
+background.setSize(1500,700);
+
+var victory = new Audio("Music/victory.mp3");
+var laughEvil = new Audio("Music/EvilLaugh.mp3");
+var music = new Audio("Music/music.mp3");
+
+var RestartBtn = new sjs.Button("Retry?", function(){
+location.reload();
+});
+
+RestartBtn.moveTo(999,999);
+
+//Player Properties
+var player = new sjs.Image("Images/IdleR.png");
+player.type = "player";
+player.setSize(85,93);
+player.setGravity(10);
+player.bottom();
+player.friction = .3;
+player.noBounds = true;
+
+//Hopefully Boss
+
+var boss = new sjs.Image("Images/boss.png");
+boss.type = "boss";
+boss.setSize(500,600);
+boss.center().right();
+boss.noBounds = true;
+//Player movement controls
+
+var r_images = ["Images/R_1.png", "Images/R_2.png", "Images/R_3.png", "Images/R_4.png", "Images/R_5.png", "Images/R_1.png", "Images/R_2.png", "Images/R_3.png"];
+
+var l_images = ["Images/L_1.png", "Images/L_2.png", "Images/L_3.png", "Images/L_4.png", "Images/L_5.png", "Images/L_1.png", "Images/L_2.png", "Images/L_3.png"];
+
+var r_facing = true;
+var r_track = 0;
+var l_track = 0;
+
+
+//Enemy Health
+var bossHealth = 4000;
+var bossHealth_txt = new sjs.Text("Boss Health: 4000", 25, "orange");
+
+var mummyHealth = 25;
+
+var playerHealth = 5;
+var playerHealth_txt = new sjs.Text("Health: 5", 25, "green");
+playerHealth_txt.bottom();
+
+//Mummies
+setInterval(function(){
+var mummy = new sjs.Image("Images/mummy.gif");
+mummy.setSize(150,150);
+mummy.right().bottom();
+mummy.type = "mummy";
+mummy.friction = 0;
+mummy.noBounds = true;
+mummy.accel= .5;
+mummy.pushLeft(1.5);
+if(bossHealth < 1){
+mummy.destroy();
+mummy.type ="nothing";
+mummy.pushRight(5);
+ 
+ }
+
+}, 2500);
+
+
+var platform = new sjs.Image("Images/platform.png");
+platform.setSize(200,35);
+platform.moveTo(500,500);
+platform.type = "platform";
+
+setInterval(function(){
+if(bossHealth < 2001){
+var x = Math.floor(Math.random() * 700);
+var y = Math.floor(Math.random() * 10);
+var acid = new sjs.Image("Images/acid.png");
+acid.type = "acid";
+acid.setSize(15,35);
+acid.noBounds = true;
+acid.friction = 0;
+acid.pushDown(5);
+acid.moveTo(x, y);
+}
+if(bossHealth < 1){
+acid.destroy();
+acid.type ="nothing";
+ }
+},1500);
+
+setInterval(function(){
+if(bossHealth < 1001){
+	var laser = new sjs.Image("Images/laser.png");
+	laser.type = "laser";
+	laser.setSize(35,35);
+	laser.noBounds = true;
+	laser.friction = 0;
+	laser.pushLeft(7).pushDown(2);
+laser.moveTo(boss.getX()+125,boss.getY()+250);
+}
+if(bossHealth < 1){
+laser.destroy();
+laser.type ="nothing";
+ 
+ }
+},3000);
+
+setInterval(function(){
+if(bossHealth < 1001){
+	var laser2 = new sjs.Image("Images/laser.png");
+	laser2.type = "laser2";
+	laser2.setSize(35,35);
+	laser2.noBounds = true;
+	laser2.friction = 0;
+	laser2.pushLeft(10).pushDown(5);
+laser2.moveTo(boss.getX()+300,boss.getY()+250);
+}
+if(bossHealth < 1){
+laser2.destroy();
+laser2.type ="nothing";
+ 
+ }
+},3000);
+
+setInterval(function(){
+if(bossHealth < 1){
+var flag = new sjs.Image("Images/flag.png");
+flag.type = "flag";
+flag.moveTo(2000,2000);
+flag.setSize(250,650);
+}
+},1000);
+
+
+sjs.keyDown(RIGHT_KEY, function(){
+r_facing = true;
+r_track = r_track + 1;
+player.pushRight(2);
+player.setImage(r_images[r_track]);
+if(r_track == 7){
+	r_track = 0;
+}
+if(r_track >= 8){
+	player.setImage("Images/JumpR.png");
+}
+if(playerHealth < 1){
+	player.pushRight(999);
+}
+});
+
+sjs.keyDown(DOWN_KEY, function(){
+	player.setSize(85,45);
+	if(r_facing == true){
+player.setImage("Images/crouch.png");
+	} else {
+player.setImage("Images/crouchL.png");
+	}
+});
+
+
+sjs.keyDown(LEFT_KEY, function(){
+r_facing = false;
+l_track = l_track + 1;
+player.pushLeft(2);
+player.setImage(l_images[l_track]);
+if(l_track == 7){
+	l_track = 0;
+}
+if(l_track >= 8){
+	player.setImage("Images/JumpL.png");
+}
+if(playerHealth < 1){
+	player.pushLeft(999);
+}
+});
+
+//Jumping Code
+var canJump = true;
+sjs.keyDown(UP_KEY, function(){
+if(canJump == true){
+	canJump = false;
+	player.pushUp(75);
+	if(r_facing == true){
+player.setImage("Images/JumpR.png");
+r_track = 8;
+	} else {
+player.setImage("Images/JumpL.png");
+l_track = 8;
+	}
+}
+if(playerHealth < 1){
+	player.pushUp(999);
+}
+});
+
+window.addEventListener("keyup", function(e){
+if(e.keyCode == RIGHT_KEY){
+player.setImage("Images/IdleR.png");
+r_track = 0;
+} else if (e.keyCode == LEFT_KEY){
+player.setImage("Images/IdleL.png");
+l_track = 0;
+} else if (e.keyCode == DOWN_KEY){
+	player.setSize(85,93);
+	player.pushUp(20);
+	player.setImage("Images/IdleR.png");
+}
+});
+
+sjs.keyDown(SPACE_KEY, function(){
+if(canShoot == true){
+	canShoot == false;
+	var fireBall = new sjs.Image("Images/fireball.png");
+	fireBall.type = "fireBall";
+	fireBall.setSize(25,25);
+	fireBall.friction = 0;
+	fireBall.noBounds = true;
+	if(r_facing == true){
+		fireBall.moveTo(player.getX()+44,player.getY()+7);
+		fireBall.pushRight(25.5);
+	} else {
+		fireBall.moveTo(player.getX()+-60,player.getY()+7);
+		fireBall.pushLeft(25.5);
+	}
+}
+if(playerHealth < 1){
+	fireBall.type = "nothing";
+	fireBall.setSize(.01,.01);
+player.moveTo(999,999);
+}
+});
+setInterval(function(){
+if(bossHealth < 3001){
+var bossShot = new sjs.Image("Images/evilBall.png");
+bossShot.setSize(35,35);
+bossShot.type = "bossShot";
+bossShot.friction = 0;
+bossShot.noBounds = true;
+bossShot.pushLeft(10);
+bossShot.moveTo(boss.getX()+200,boss.getY()+425);
+}
+if(bossHealth < 1){
+bossShot.destroy();
+bossShot.type ="nothing";
+ 
+ }
+}, 2000);
+
+sjs.onHit("player", 
+["right_screen","left_screen","top_screen"],function(x,y)
+{
+	sjs.stoppedBy(x,y);
+});
+
+sjs.onHit("player",["laser","laser2"],function(x,y){
+playerHealth = playerHealth -1
+playerHealth_txt.setText("Health: "+playerHealth);
+y.destroy();
+if(playerHealth < 1){
+	music.pause();
+	laughEvil.play();
+RestartBtn.center();
+}
+});
+
+sjs.onHit("bossShot","left_screen",
+	function(x,y){
+		x.destroy();
+	});
+
+sjs.onHit("acid","bottom_screen",
+	function(x,y){
+x.destroy();
+	});
+
+sjs.onHit("mummy",["right_screen","left_screen"],
+	function(x,y){
+		x.destroy();
+	});
+
+sjs.onHit("player","bottom_screen",function(x,y){
+	sjs.stoppedBy(x,y);
+if(canJump == false){
+	canJump = true;
+	r_track = 0;
+	l_track = 0;
+}
+});
+
+sjs.onHit("fireBall",["right_screen","left_screen"],
+	function(x,y){
+		x.destroy();
+	});
+
+sjs.onHit("fireBall","mummy",function(x,y){
+x.destroy();
+mummyHealth = mummyHealth -1
+if(mummyHealth < 1){
+	y.destroy();
+mummyHealth = 25;
+}
+});
+
+sjs.onHit("fireBall","boss", function(fireBall,boss){
+bossHealth = bossHealth -1
+bossHealth_txt.setText("Boss Health: "+bossHealth);
+fireBall.destroy();
+if(bossHealth > 0){
+	music.play();
+} else {
+	boss.destroy();
+music.pause();
+victory.play();
+mummy.destroy();
+
+}
+});
+
+sjs.onHit("player","mummy",function(x,y){
+	playerHealth = playerHealth -1
+playerHealth_txt.setText("Health: "+playerHealth);
+y.destroy();
+if(playerHealth < 1){
+	music.pause();
+	laughEvil.play();
+RestartBtn.center();
+}
+});
+
+sjs.onHit("player","platform",function(x,y){
+sjs.stoppedBy(x,y);
+if(canJump == false){
+	canJump = true;
+	r_track = 0;
+	l_track = 0;
+}
+});
+
+sjs.onHit("player","acid",function(x,y){
+playerHealth = playerHealth -1
+playerHealth_txt.setText("Health: "+playerHealth);
+y.destroy();
+if(playerHealth < 1){
+	music.pause();
+	laughEvil.play();
+RestartBtn.center();
+}
+});
+
+sjs.onHit("player","bossShot",function(x,y){
+	playerHealth = playerHealth -1
+playerHealth_txt.setText("Health: "+playerHealth);
+y.destroy();
+if(playerHealth < 1){
+	music.pause();
+	laughEvil.play();
+RestartBtn.center();
+}
+});
+
+
+var RetryBtn = new sjs.Button("Play Again", function(){
+location.reload();
+});
+
+RetryBtn.moveTo(999,999);
+
+sjs.onHit("player","flag",function(x,y){
+x.destroy();
+y.destroy();
+RetryBtn.center();
+player.moveTo(999,999);
+});
+
+sjs.onHit("platform","acid",function(x,y){
+y.destroy();
+});
+
+sjs.onHit("player","top_screen",function(x,y){
+player.moveTo(999,999);
+});
+
+var canShoot = true;
+
+
+} //end start
+</script>
+</head>
+<body onload="start()">
+<h1> Custom Game </h1>
+
+<div id="target" style="margin:auto;background:grey;"></div>
+</body>
+</html>
